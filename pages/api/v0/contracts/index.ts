@@ -6,7 +6,9 @@ const PRIVATE_KEY: any = process.env.ETHOS_ETHEREUM_DEPLOYER_PRIVATE_KEY;
 
 // Product Contract Schema
 const ProductContractSchema = z.object({
-  chain: z.string(),
+  chain: z.string().refine((value) => {
+    return ["mumbai", "goerli"].includes(value);
+  }),
   name: z.string(),
   symbol: z.string(),
   description: z.string(),
@@ -84,23 +86,6 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
   let deployer: any;
   switch (method) {
     case "POST":
-      // Check if the chain is supported
-      supportedChains = ["mumbai", "goerli"];
-      if (!supportedChains.includes(chain)) {
-        console.log("Unsupported chain");
-        res.status(400).json({
-          response: "NOK",
-          error: {
-            status_code: 400,
-            code: "unsupported_chain",
-            message: `Unsupported chain: ${chain}`,
-          },
-        });
-        res.end();
-        break;
-      }
-      console.log("Supported chain");
-
       // Initialize thirdweb SDK using the private key and chain
       thirdweb = ThirdwebSDK.fromPrivateKey(PRIVATE_KEY, `${chain}`);
       deployer = thirdweb.deployer;
@@ -119,10 +104,9 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
               chain,
               contract_address: event.contractAddress,
               transaction_hash: event.transactionHash,
-              etherscan_url: `${blockExplorerUrl(chain)}/${
+              block_explorer_url: `${blockExplorerUrl(chain)}/${
                 event.transactionHash
               }`,
-              // contract_address: event.contractAddress || "",
               name,
               symbol,
             });
