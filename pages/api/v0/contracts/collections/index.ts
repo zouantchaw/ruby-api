@@ -15,11 +15,11 @@ const CollectionContractSchema = z.object({
   description: z.string(),
   logo: z.string(),
   banner: z.string(),
-  socials: z.object({
-    website: z.string(),
-    twitter: z.string(),
-    instagram: z.string(),
-  }),
+  // socials: z.object({
+  //   website: z.string(),
+  //   twitter: z.string(),
+  //   instagram: z.string(),
+  // }),
 });
 
 export default async function handleCollectionContract(

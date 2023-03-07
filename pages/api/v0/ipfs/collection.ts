@@ -11,11 +11,11 @@ const UploadDirectorySchema = z.object({
   max_supply: z.number(),
   logo: z.string().url(),
   banner: z.string().url(),
-  socials: z.object({
-    website: z.string().url(),
-    twitter: z.string().url(),
-    instagram: z.string().url(),
-  }),
+  // socials: z.object({
+  //   website: z.string().url(),
+  //   twitter: z.string().url(),
+  //   instagram: z.string().url(),
+  // }),
   metadata: z.array(
     z.object({
       name: z.string(),
