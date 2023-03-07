@@ -104,7 +104,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
               chain,
               contract_address: event.contractAddress,
               transaction_hash: event.transactionHash,
-              block_explorer_url: `${blockExplorerUrl(chain)}/${
+    transaction_external_url: `${blockExplorerUrl(chain)}/${
                 event.transactionHash
               }`,
               name,

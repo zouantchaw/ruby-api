@@ -106,7 +106,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
           chain,
           contract_address,
           transaction_hash: mintReceipt.transactionHash,
-          block_explorer_url: `${blockExplorerUrl(chain)}/${
+transaction_external_url: `${blockExplorerUrl(chain)}/${
             mintReceipt.transactionHash
           }`,
           mint_to_address: nft.owner,
