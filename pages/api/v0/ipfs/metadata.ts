@@ -11,57 +11,58 @@ const UploadMetadataSchema = z.object({
 });
 
 export default async function (req: NextApiRequest, res: NextApiResponse) {
+  // Set the CORS headers
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Content-Type", "application/json");
+
+  // Check if the API key is valid
+  const apiKey = req.headers["authorization"];
+  if (!apiKey || apiKey !== process.env.SERVER_AUTH_TOKEN) {
+    console.log("Invalid API key");
+    res.status(401).json({
+      response: "NOK",
+      error: {
+        status_code: 401,
+        message: "Invalid Authorization Token",
+        code: "invalid_authorization_token",
+      },
+    });
+    res.end();
+    return;
+  }
+  console.log("Valid API key");
+
+  // Check body against schema
+  // Validate the request body
+  const checkRequiredParams = UploadMetadataSchema.safeParse(req.body);
+  if (!checkRequiredParams.success) {
+    const errorPath = checkRequiredParams.error.issues[0].path[0];
+    console.log("Invalid parameters");
+    res.status(400).json({
+      response: "NOK",
+      error: {
+        status_code: 400,
+        code: "invalid_parameters",
+        message: `Invalid required parameter: ${errorPath}`,
+      },
+    });
+    res.end();
+    return; 
+  }
+  console.log("Valid parameters");
+
   const { method, body } = req;
   const { name, description, external_url } = body;
-  console.log("body: ", body);
   // Parse the file name from the URL: https://ipfs.ethosnft.com/chapter2bikes/preview-chapter2-bharms-koko-aero-frame.mp4
   const file_name = external_url.split("/").pop();
   console.log(`Pinning metadata asset: ${file_name}`);
   const nftStorageClient = new NFTStorage({
     token: process.env.NFT_STORAGE_API_KEY as string,
   });
-
-  let apiKey: string | undefined;
-  let checkRequiredParams: any;
   let storage: any;
   let deployer: any;
   switch (method) {
     case "POST":
-      // Check if the API key is valid
-      apiKey = req.headers["authorization"];
-      if (!apiKey || apiKey !== process.env.SERVER_AUTH_TOKEN) {
-        console.log("Invalid API key");
-        res.status(401).json({
-          response: "NOK",
-          error: {
-            status_code: 401,
-            message: "Invalid Authorization Token",
-            code: "invalid_authorization_token",
-          },
-        });
-        res.end();
-        break;
-      }
-      console.log("Valid API key");
-
-      // Validate the request body
-      checkRequiredParams = UploadMetadataSchema.safeParse(req.body);
-      if (!checkRequiredParams.success) {
-        const errorPath = checkRequiredParams.error.issues[0].path[0];
-        console.log("Invalid parameters");
-        res.status(400).json({
-          response: "NOK",
-          error: {
-            status_code: 400,
-            code: "invalid_parameters",
-            message: `Invalid required parameter: ${errorPath}`,
-          },
-        });
-        res.end();
-        break;
-      }
-      console.log("Valid parameters");
-
       // Initialize thirdweb storage
       storage = new ThirdwebStorage();
 
