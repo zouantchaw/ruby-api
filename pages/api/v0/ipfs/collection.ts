@@ -4,18 +4,18 @@ import { NFTStorage } from "nft.storage";
 import { z } from "zod";
 
 // Upload Directory Schema
-const UploadDirectorySchema = z.object({
+const UploadCollectionSchema = z.object({
   name: z.string(),
   symbol: z.string(),
-  description: z.string(),
+  description: z.any().optional(),
   max_supply: z.number(),
   logo: z.string().url(),
   banner: z.string().url(),
   socials: z.object({
-    website: z.string().url(),
-    twitter: z.string().url(),
-    instagram: z.string().url(),
-  }),
+    website: z.any().optional(),
+    twitter: z.any().optional(),
+    instagram: z.any().optional(),
+  }).optional(),
   metadata: z.array(
     z.object({
       name: z.string(),
@@ -50,7 +50,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
 
   // Check body against schema
   // Validate the request body
-  const checkRequiredParams = UploadDirectorySchema.safeParse(req.body);
+  const checkRequiredParams = UploadCollectionSchema.safeParse(req.body);
   if (!checkRequiredParams.success) {
     const errorPath = checkRequiredParams.error.issues[0].path[0];
     console.log("Invalid parameters");
