@@ -19,8 +19,8 @@ const UploadCollectionSchema = z.object({
   metadata: z.array(
     z.object({
       name: z.string(),
-      token_id: z.number(),
-      description: z.string(),
+      token_id: z.string(),
+      description: z.any().optional(),
       external_url: z.string().url(),
     })
   ),
@@ -119,6 +119,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
           symbol,
           max_supply,
         });
+        console.log("Collection URI:", baseUri);
         res.end();
       } catch (error) {
         res.status(500).json({
