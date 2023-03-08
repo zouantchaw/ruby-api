@@ -62,6 +62,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
         message: `Invalid required parameter: ${errorPath}`,
       },
     });
+    console.log(checkRequiredParams.error);
     res.end();
     return;
   }
