@@ -49,7 +49,6 @@ export default async function handleCollectionContract(
   const checkRequiredParams = CollectionContractSchema.safeParse(req.body);
   if (!checkRequiredParams.success) {
     const errorPath = checkRequiredParams.error.issues[0].path[0];
-    console.log("Invalid parameters");
     res.status(400).json({
       response: "NOK",
       error: {
@@ -58,6 +57,7 @@ export default async function handleCollectionContract(
         message: `Invalid required parameter: ${errorPath}`,
       },
     });
+    console.log(`Invalid required parameter: ${errorPath}`);
     res.end();
     return;
   }
