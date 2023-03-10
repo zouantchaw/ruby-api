@@ -1,4 +1,5 @@
 import { DeployEvent, ThirdwebSDK } from "@thirdweb-dev/sdk";
+import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import { NextApiRequest, NextApiResponse } from "next";
 import { z } from "zod";
 
@@ -15,11 +16,7 @@ const CollectionContractSchema = z.object({
   description: z.string(),
   logo: z.string(),
   banner: z.string(),
-  socials: z.object({
-    website: z.string(),
-    twitter: z.string(),
-    instagram: z.string(),
-  }),
+  socials: z.any().optional(),
 });
 
 export default async function handleCollectionContract(
@@ -102,25 +99,14 @@ export default async function handleCollectionContract(
     // Initialize thirdweb SDK using the private key and chain
     const thirdweb = ThirdwebSDK.fromPrivateKey(PRIVATE_KEY, `${chain}`);
     const deployer = thirdweb.deployer;
+    const storage = new ThirdwebStorage();
+
 
     // Define callback function to handle deploy event
     const onDeploy = async (event: DeployEvent) => {
       console.log(`Contract deployment: ${event.status}`);
       //  Only send response when status is `submitted`
       if (event.status === "completed") {
-        // Set Contract metadata
-        const contract = await thirdweb.getContract(event.contractAddress || "");
-        await contract.metadata.set({
-          name,
-          description,
-          symbol,
-          max_supply,
-          logo,
-          banner,
-        });
-        console.log("Contract metadata set");
-        // Get contract metadata
-        const metadata = await contract.metadata.get();
         // Remove deploy listener
         deployer.removeDeployListener(onDeploy);
         res.status(200).json({
@@ -131,7 +117,6 @@ export default async function handleCollectionContract(
 transaction_external_url: `${blockExplorerUrl(chain)}/${
             event.transactionHash
           }`,
-          contract_metadata: metadata,
         });
       }
     };
@@ -140,13 +125,22 @@ transaction_external_url: `${blockExplorerUrl(chain)}/${
     deployer.addDeployListener(onDeploy);
 
     // Deploy NFT collection contract
-    await deployer.deployNFTCollection({
-      name,
-      symbol,
+    // await deployer.deployNFTCollection({
+    //   name,
+    //   symbol,
+    //   description,
+    //   image: logo,
+    //   primary_sale_recipient: process.env.ETHOS_ETHEREUM_DEPLOYER_ADDRESS || "",
+    // });
+    await deployer.deployBuiltInContract("nft-collection", {
+      // Required parameters
+      name, 
+      primary_sale_recipient: "0x429505F06cf1214dC5d03C335cF4632B314ecb6C",
+
+      // Optional parameters
       description,
-      image: logo,
-      primary_sale_recipient: process.env.ETHOS_ETHEREUM_DEPLOYER_ADDRESS || "",
-    });
+      symbol,
+    })
   } catch (error: any) {
     // Handle errors
     const statusCode = error.statusCode || 500;

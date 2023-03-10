@@ -14,11 +14,7 @@ const ProductContractSchema = z.object({
   description: z.string(),
   logo: z.string(),
   banner: z.string(),
-  socials: z.object({
-    website: z.string(),
-    twitter: z.string(),
-    instagram: z.string(),
-  }),
+  socials: z.any().optional(),
 });
 
 export default async function (req: NextApiRequest, res: NextApiResponse) {
