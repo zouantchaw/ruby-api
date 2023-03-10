@@ -90,6 +90,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
           metadata_cid: metadataCid,
           name,
         });
+        console.log(`Metadata uploaded: ${metadataUri}`);
         res.end();
       } catch (error) {
         console.log("Error: ", error);
