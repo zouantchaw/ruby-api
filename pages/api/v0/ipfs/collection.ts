@@ -19,12 +19,27 @@ const UploadCollectionSchema = z.object({
   metadata: z.array(
     z.object({
       name: z.string(),
-      token_id: z.string(),
+      token_id: z.number(),
       description: z.any().optional(),
       external_url: z.string().url(),
     })
   ),
 });
+
+const checkAssetVariations = (metadata: any) => {
+  const externalUrls = metadata.map((asset: any) => {
+    return asset.external_url;
+  });
+  const fileNames = externalUrls.map((url: any) => {
+    const fileName = url.split("/").pop();
+    return fileName;
+  });
+  const isSame = fileNames.every((fileName: any) => {
+    return fileName === fileNames[0];
+  });
+
+  return !isSame;
+};
 
 export default async function (req: NextApiRequest, res: NextApiResponse) {
   // Set the CORS headers
@@ -87,21 +102,45 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
         // spread everything from the body except the metadata
         files.push({ ...body, metadata: undefined });
 
-        // Iterate through the metadata array
-        // For each object:
-        // 1. Upload the content at external_url to IPFS
-        // 2. Spread the object and add the image property using the contentCid
-        // 3. Push the object to the files array
-        for (let i = 0; i < metadata.length; i++) {
-          const { external_url } = metadata[i];
+        // Check if the assets have variations
+        if (checkAssetVariations(metadata)) {
+          // If the assets have variations
+          // Iterate through the metadata array
+          // For each object:
+          // 1. Upload the content at external_url to IPFS
+          // 2. Spread the object and add the image property using the contentCid
+          // 3. Push the object to the files array
+          console.log("Assets have variations");
+          for (let i = 0; i < metadata.length; i++) {
+            const { external_url } = metadata[i];
+            const response = await fetch(external_url);
+            const file = await response.blob();
+            const contentCid = await nftStorageClient.storeBlob(file);
+            const fileObj = {
+              ...metadata[i],
+              image: `https://ipfs.io/ipfs/${contentCid}`,
+            };
+            files.push(fileObj);
+          }
+        } else {
+          // If the assets don't have variations
+          // Iterate through the metadata array
+          // For each object:
+          // 1. Only upload the content at external_url of the first object to IPFS
+          // 2. Spread the object and add the image property using the contentCid
+          // 3. Push the object to the files array
+          console.log("Assets don't have variations");
+          const { external_url } = metadata[0];
           const response = await fetch(external_url);
           const file = await response.blob();
           const contentCid = await nftStorageClient.storeBlob(file);
-          const fileObj = {
-            ...metadata[i],
-            image: `https://ipfs.io/ipfs/${contentCid}`,
-          };
-          files.push(fileObj);
+          for (let i = 0; i < metadata.length; i++) {
+            const fileObj = {
+              ...metadata[i],
+              image: `https://ipfs.io/ipfs/${contentCid}`,
+            };
+            files.push(fileObj);
+          }
         }
         console.log("Files: ", files);
 
