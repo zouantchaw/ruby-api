@@ -73,8 +73,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
   console.log("Valid parameters");
 
   const { method, body } = req;
-  const { name, symbol, max_supply, description, metadata } = body;
-  console.log("Collection Info:", name, symbol, max_supply, description);
+  const { metadata } = body;
   const nftStorageClient = new NFTStorage({
     token: process.env.NFT_STORAGE_API_KEY as string,
   });
@@ -89,7 +88,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
 
         // Push the collection info to the files array
         // spread everything from the body except the metadata
-        files.push({ ...body, metadata: undefined });
+        // files.push({ ...body, metadata: undefined });
 
         // Check if the assets have variations
         if (checkAssetVariations(metadata)) {
@@ -143,9 +142,6 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
           response: "OK",
           base_uri: baseUri,
           base_cid: baseCid,
-          name,
-          symbol,
-          max_supply,
         });
         console.log("Collection URI:", baseUri);
         res.end();
