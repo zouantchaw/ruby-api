@@ -8,6 +8,7 @@ const UploadMetadataSchema = z.object({
   name: z.string(),
   description: z.string(),
   external_url: z.string().url(),
+  token_id: z.number(),
 });
 
 export default async function (req: NextApiRequest, res: NextApiResponse) {

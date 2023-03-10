@@ -5,17 +5,6 @@ import { z } from "zod";
 
 // Upload Directory Schema
 const UploadCollectionSchema = z.object({
-  name: z.string(),
-  symbol: z.string(),
-  description: z.any().optional(),
-  max_supply: z.number(),
-  logo: z.string().url(),
-  banner: z.string().url(),
-  socials: z.object({
-    website: z.any().optional(),
-    twitter: z.any().optional(),
-    instagram: z.any().optional(),
-  }).optional(),
   metadata: z.array(
     z.object({
       name: z.string(),
