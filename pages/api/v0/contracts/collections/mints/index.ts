@@ -14,6 +14,7 @@ const CollectionNftSchema = z.object({
     return /^0x[a-fA-F0-9]{40}$/.test(value);
   }),
   metadata_uri: z.string().url(),
+  token_id: z.number(),
 });
 
 export default async function (req: NextApiRequest, res: NextApiResponse) {
