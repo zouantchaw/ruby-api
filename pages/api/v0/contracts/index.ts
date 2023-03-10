@@ -14,11 +14,11 @@ const ProductContractSchema = z.object({
   description: z.string(),
   logo: z.string(),
   banner: z.string(),
-  // socials: z.object({
-  //   website: z.string(),
-  //   twitter: z.string(),
-  //   instagram: z.string(),
-  // }),
+  socials: z.object({
+    website: z.string(),
+    twitter: z.string(),
+    instagram: z.string(),
+  }),
 });
 
 export default async function (req: NextApiRequest, res: NextApiResponse) {
@@ -97,6 +97,19 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
           console.log(`Contract deployment: ${event.status}`);
           //  Only send response when status is `submitted`
           if (event.status === "completed") {
+            // Set Contract metadata
+            const contract = await thirdweb.getContract(event.contractAddress);
+            await contract.metadata.set({
+              name,
+              description,
+              symbol,
+              logo,
+              banner,
+            });
+            console.log("Contract metadata set");
+            // Get contract metadata
+            const metadata = await contract.metadata.get();
+            console.log("Contract metadata: ", metadata);
             // Remove deploy listener
             deployer.removeDeployListener(onDeploy);
             res.status(200).json({
@@ -107,8 +120,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
     transaction_external_url: `${blockExplorerUrl(chain)}/${
                 event.transactionHash
               }`,
-              name,
-              symbol,
+              contract_metadata: metadata,
             });
           }
         };

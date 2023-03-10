@@ -15,11 +15,11 @@ const CollectionContractSchema = z.object({
   description: z.string(),
   logo: z.string(),
   banner: z.string(),
-  // socials: z.object({
-  //   website: z.string(),
-  //   twitter: z.string(),
-  //   instagram: z.string(),
-  // }),
+  socials: z.object({
+    website: z.string(),
+    twitter: z.string(),
+    instagram: z.string(),
+  }),
 });
 
 export default async function handleCollectionContract(
@@ -108,6 +108,19 @@ export default async function handleCollectionContract(
       console.log(`Contract deployment: ${event.status}`);
       //  Only send response when status is `submitted`
       if (event.status === "completed") {
+        // Set Contract metadata
+        const contract = await thirdweb.getContract(event.contractAddress || "");
+        await contract.metadata.set({
+          name,
+          description,
+          symbol,
+          max_supply,
+          logo,
+          banner,
+        });
+        console.log("Contract metadata set");
+        // Get contract metadata
+        const metadata = await contract.metadata.get();
         // Remove deploy listener
         deployer.removeDeployListener(onDeploy);
         res.status(200).json({
@@ -118,9 +131,7 @@ export default async function handleCollectionContract(
 transaction_external_url: `${blockExplorerUrl(chain)}/${
             event.transactionHash
           }`,
-          name,
-          symbol,
-          max_supply,
+          contract_metadata: metadata,
         });
       }
     };
