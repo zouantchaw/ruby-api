@@ -44,7 +44,6 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
   const checkRequiredParams = CollectionNftSchema.safeParse(req.body);
   if (!checkRequiredParams.success) {
     const errorPath = checkRequiredParams.error.issues[0].path[0];
-    console.log("Invalid parameters");
     res.status(400).json({
       response: "NOK",
       error: {
@@ -53,6 +52,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
         message: `Invalid required parameter: ${errorPath}`,
       },
     });
+    console.log(`Invalid required parameter: ${errorPath}`);
     res.end();
     return;
   }
@@ -112,6 +112,7 @@ transaction_external_url: `${blockExplorerUrl(chain)}/${
           token_id: nft.metadata.id,
           metadata_uri: nft.metadata.uri,
         });
+        console.log(`Minted NFT ${tokenId} to ${nft.owner}`);
         res.end();
       } catch (error) {
         console.log("Error: ", error);
