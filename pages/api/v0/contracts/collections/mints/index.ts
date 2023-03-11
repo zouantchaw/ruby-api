@@ -110,7 +110,7 @@ transaction_external_url: `${blockExplorerUrl(chain)}/${
             mintReceipt.transactionHash
           }`,
           mint_to_address: nft.owner,
-          // token_id: nft.metadata.id,
+          token_id: nft.metadata.id,
           metadata_uri: nft.metadata.uri,
         });
         console.log(`Minted NFT ${tokenId} to ${nft.owner}`);
