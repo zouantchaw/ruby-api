@@ -42,7 +42,7 @@ export default async function handleCollectionContract(
     res.end();
     return;
   }
-  console.log("Valid API key");
+  console.log("Valid API key"); 
 
   // Check body against schema
   // Validate the request body
@@ -107,6 +107,26 @@ export default async function handleCollectionContract(
       console.log(`Contract deployment: ${event.status}`);
       //  Only send response when status is `submitted`
       if (event.status === "completed") {
+        // Mint NFT 0
+        console.log("Minting NFT 0");
+        const nftZeroMetadata = {
+          name: "NFT 0",
+          description: "NFT 0",
+          image: "https://i.imgur.com/1J8QZ9r.png",
+        };
+        const contract = await thirdweb.getContract(event.contractAddress as string);
+        const mintTx = await contract.erc721.mint(nftZeroMetadata);
+        const mintReceipt = await mintTx.receipt;
+        console.log("txHash: ", mintReceipt.transactionHash);
+        const tokenId = mintTx.id;
+        console.log(`Minted NFT : ${tokenId}`);
+
+        // Burn NFT 0
+        console.log("Burning NFT 0");
+        const result = await contract.erc721.burn(0);
+        console.log("burn result: ", result);
+        console.log(`Successfully burned NFT 0`);
+
         // Remove deploy listener
         deployer.removeDeployListener(onDeploy);
         res.status(200).json({
