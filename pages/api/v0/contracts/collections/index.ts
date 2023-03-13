@@ -110,9 +110,9 @@ export default async function handleCollectionContract(
         // Mint NFT 0
         console.log("Minting NFT 0");
         const nftZeroMetadata = {
-          name: "NFT 0",
-          description: "NFT 0",
-          image: "https://i.imgur.com/1J8QZ9r.png",
+          name: "ethos",
+          description: "Introduce your customers to digital assets",
+          image: "https://bafybeibo4rsume3fylomred4gzwhqgxvk7tuvjm2lfktm76zcapcgl2wcm.ipfs.nftstorage.link/4c51a148-ec18-4e75-9f53-38481186aeee.png",
         };
         const contract = await thirdweb.getContract(event.contractAddress as string);
         const mintTx = await contract.erc721.mint(nftZeroMetadata);
@@ -121,11 +121,17 @@ export default async function handleCollectionContract(
         const tokenId = mintTx.id;
         console.log(`Minted NFT : ${tokenId}`);
 
+        // Send NFT 0 to burn address
+        const burnAddress = "0x000000000000000000000000000000000000dEaD";
+        console.log(`Sending NFT 0 to burn address: ${burnAddress}`);
+        const sendTx = await contract.call("safeTransferFrom", "0x429505F06cf1214dC5d03C335cF4632B314ecb6C", burnAddress, tokenId);
+        console.log("burnTx: ", sendTx);
+
         // Burn NFT 0
-        console.log("Burning NFT 0");
-        const result = await contract.erc721.burn(0);
-        console.log("burn result: ", result);
-        console.log(`Successfully burned NFT 0`);
+        // console.log("Burning NFT 0");
+        // const result = await contract.erc721.burn(0);
+        // console.log("burn result: ", result);
+        // console.log(`Successfully burned NFT 0`);
 
         // Remove deploy listener
         deployer.removeDeployListener(onDeploy);
