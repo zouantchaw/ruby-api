@@ -8,7 +8,7 @@ const PRIVATE_KEY: any = process.env.ETHOS_ETHEREUM_DEPLOYER_PRIVATE_KEY;
 // Product Contract Schema
 const CollectionContractSchema = z.object({
   chain: z.string().refine((value) => {
-    return ["mumbai", "goerli"].includes(value);
+    return ["mumbai", "goerli", "polygon"].includes(value);
   }),
   name: z.string(),
   symbol: z.string(),

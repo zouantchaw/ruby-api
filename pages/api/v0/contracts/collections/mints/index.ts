@@ -8,7 +8,7 @@ const PRIVATE_KEY: any = process.env.ETHOS_ETHEREUM_DEPLOYER_PRIVATE_KEY;
 // Collection NFT Schema
 const CollectionNftSchema = z.object({
   chain: z.string().refine((value) => {
-    return ["mumbai", "goerli"].includes(value);
+    return ["mumbai", "goerli", "polygon"].includes(value);
   }),
   contract_address: z.string().refine((value) => {
     return /^0x[a-fA-F0-9]{40}$/.test(value);
