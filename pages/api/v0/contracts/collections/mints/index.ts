@@ -60,7 +60,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
   console.log("Valid parameters");
 
   const { method, body } = req;
-  const { chain, contract_address, metadata_uri } = body;
+  const { chain, contract_address, metadata_uri, token_id } = body;
   const blockExplorerUrl = (chain: string) => {
     switch (chain) {
       case "mumbai":
@@ -80,18 +80,43 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
   let thirdweb: any;
   let contract: any;
   let storage: any;
+  let nextTokenIdToMint: any;
   switch (method) {
     case "POST":
       try {
         // Initialize thirdweb SDK using the private key and chain
         thirdweb = ThirdwebSDK.fromPrivateKey(PRIVATE_KEY, `${chain}`);
         contract = await thirdweb.getContract(contract_address);
+
+        // Check if the token_id equals to the nextTokenIdToMint
+        // Get the next token id to mint
+        nextTokenIdToMint = await contract.call("nextTokenIdToMint");
+        // Convert BigNumber { _hex: '0x04', _isBigNumber: true } to number
+        nextTokenIdToMint = parseInt(nextTokenIdToMint._hex, 16);
+        console.log("nextTokenIdToMint: ", nextTokenIdToMint);
+        if (token_id !== nextTokenIdToMint) {
+          console.log("Invalid token id");
+          res.status(400).json({
+            response: "NOK",
+            error: {
+              status_code: 400,
+              code: "invalid_parameters",
+              message: `Token id ${token_id} is not valid. The next token id to mint is ${nextTokenIdToMint}`,
+            },
+          });
+          res.end();
+          return;
+        };
+
         // Initialize thirdweb storage
         storage = new ThirdwebStorage();
 
         // Download the metadata from metadata_uri
         const metadata = await storage.downloadJSON(metadata_uri);
         console.log("metadata: ", metadata);
+
+        // Mint the NFT
+        // const data = await contract.call("mintTo", "0x429505F06cf1214dC5d03C335cF4632B314ecb6C", token_id, metadata_uri, 1)
 
         // Mint the NFT
         const mintTx = await contract.erc721.mint(metadata);
